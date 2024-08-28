@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Student Portal</h1>
+        <p>Logged in as: <span id="user-name"></span> (<span id="user-email"></span>)</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="dashboard.html" id="courses-link">Enrolled Courses</a></li>
+            <li><a href="books.html" id="books-link">Manage Books</a></li>
+            <li><a href="#" id="discussion-link">Discussion Board</a></li>
+            <li><a href="index.html" id="logout-link">Logout</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="courses-section" class="hidden">
+            <h2>Enrolled Courses</h2>
+            <ul id="courses-list"></ul>
+        </section>
+
+        <section id="discussion-section" class="hidden">
+            <h2>Discussion Board</h2>
+            <ul id="discussion-list"></ul>
+
+            <h3>Post a Comment</h3>
+            <form id="discussion-form">
+                <input type="text" id="discussion-name" placeholder="Your Name" required>
+                <textarea id="discussion-comment" placeholder="Your Comment" required></textarea>
+                <button type="submit">Post Comment</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Student Portal. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>

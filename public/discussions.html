@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discussions</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav id="main-nav">
+        <a href="index.html">Home</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+        <a href="courses.html">Courses</a>
+        <a href="discussions.html">Discussions</a>
+    </nav>
+    <main>
+        <section id="discussions-section">
+            <h2>Discussions</h2>
+            <select id="course-select">
+                <option value="">Select a course</option>
+            </select>
+            <form id="discussion-form">
+                <input type="text" id="comment-input" placeholder="Add a comment" required>
+                <button type="submit">Submit</button>
+            </form>
+            <div id="comments-section"></div>
+        </section>
+    </main>
+    <div id="user-dashboard" class="hidden">
+        <span id="username-display"></span>
+        <button id="logout-button">Logout</button>
+    </div>
+    <div id="loading-indicator" class="hidden">Loading...</div>
+    <div id="error-message" class="hidden"></div>
+    <script src="discussions.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Books</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Course Books</h1>
+        <p>Logged in as: <span id="user-name"></span> (<span id="user-email"></span>)</p>
+        <nav>
+            <ul>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="books.html" id="books-link">Books</a></li>
+                <li><a href="index.html" id="logout-link">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="books-section">
+            <h2>Manage Course Books</h2>
+            <ul id="bookList"></ul>
+            <form id="add-book-form">
+                <label for="bookTitle">Book Title:</label>
+                <input type="text" id="bookTitle" required>
+                <label for="bookAuthor">Author:</label>
+                <input type="text" id="bookAuthor" required>
+                <label for="bookISBN">ISBN:</label>
+                <input type="text" id="bookISBN" required>
+                <button type="button" id="add-book-button">Add Book</button>
+            </form>
+            <p id="books-error" class="error"></p>
+        </section>
+    </main>
+
+    <script type="module" src="books.js"></script>
+</body>
+</html>
