@@ -100,7 +100,7 @@ app.get('/api/courses', authenticateToken, (req, res) => {
 // Fetch all discussion comments
 app.get('/api/discussion', (req, res) => {
     const query = `
-        SELECT discussion.id, discussion.comment, users.name 
+        SELECT discussion.id, discussion.comment, discussion.created_at, users.name 
         FROM discussion 
         JOIN users ON discussion.user_id = users.id
     `;
@@ -113,6 +113,7 @@ app.get('/api/discussion', (req, res) => {
     });
 });
 
+
 // Post a comment in the discussion
 app.post('/api/discussion', authenticateToken, (req, res) => {
     const { comment } = req.body;
@@ -123,6 +124,21 @@ app.post('/api/discussion', authenticateToken, (req, res) => {
             return res.status(500).send('Server error');
         }
         res.send({ message: 'Comment posted successfully' });
+    });
+});
+// Delete a comment from the discussion
+app.delete('/api/discussion/:id', authenticateToken, (req, res) => {
+    const { id } = req.params;
+    const query = 'DELETE FROM discussion WHERE id = ? AND user_id = ?';
+    db.query(query, [id, req.user.id], (err, result) => {
+        if (err) {
+            console.error('Error deleting comment from database:', err);
+            return res.status(500).send('Server error');
+        }
+        if (result.affectedRows === 0) {
+            return res.status(403).send({ message: 'Unauthorized or comment not found' });
+        }
+        res.send({ message: 'Comment deleted successfully' });
     });
 });
 

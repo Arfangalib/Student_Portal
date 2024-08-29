@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const booksLink = document.getElementById('books-link');
     const logoutLink = document.getElementById('logout-link');
     const userInfo = document.getElementById('user-info');
+    const userNameSpan = document.getElementById('user-name');
+    const userEmailSpan = document.getElementById('user-email');
 
     const loginSection = document.getElementById('login-section');
     const registerSection = document.getElementById('register-section');
@@ -20,55 +22,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateUIForLoginStatus() {
         const token = localStorage.getItem('token');
-        const userNameSpan = document.getElementById('user-name');
-        const userEmailSpan = document.getElementById('user-email');
 
         if (token) {
-            loginLink.style.display = 'none';
-            registerLink.style.display = 'none';
-            logoutLink.style.display = 'inline-block';
-            coursesLink.style.display = 'inline-block';
-            discussionLink.style.display = 'inline-block';
-            booksLink.style.display = 'inline-block';
-            userInfo.style.display = 'block';
+            if (loginLink) loginLink.style.display = 'none';
+            if (registerLink) registerLink.style.display = 'none';
+            if (logoutLink) logoutLink.style.display = 'inline-block';
+            if (coursesLink) coursesLink.style.display = 'inline-block';
+            if (discussionLink) discussionLink.style.display = 'inline-block';
+            if (booksLink) booksLink.style.display = 'inline-block';
+            if (userInfo) userInfo.style.display = 'block';
 
             fetch('/api/user-info', {
                 headers: { 'Authorization': token }
             })
             .then(response => response.json())
             .then(userInfo => {
-                userNameSpan.textContent = userInfo.name;
-                userEmailSpan.textContent = userInfo.email;
+                if (userNameSpan) userNameSpan.textContent = userInfo.name;
+                if (userEmailSpan) userEmailSpan.textContent = userInfo.email;
             });
 
-            showSection(coursesSection);
+            if (coursesSection) showSection(coursesSection);
             fetchCourses();
         } else {
-            loginLink.style.display = 'inline-block';
-            registerLink.style.display = 'inline-block';
-            logoutLink.style.display = 'none';
-            coursesLink.style.display = 'none';
-            discussionLink.style.display = 'none';
-            booksLink.style.display = 'none';
-            userInfo.style.display = 'none';
-            showSection(loginSection);
+            if (loginLink) loginLink.style.display = 'inline-block';
+            if (registerLink) registerLink.style.display = 'inline-block';
+            if (logoutLink) logoutLink.style.display = 'none';
+            if (coursesLink) coursesLink.style.display = 'none';
+            if (discussionLink) discussionLink.style.display = 'none';
+            if (booksLink) booksLink.style.display = 'none';
+            if (userInfo) userInfo.style.display = 'none';
+            if (loginSection) showSection(loginSection);
         }
     }
-    // Call this function right after setting the token
+
     function onSuccessfulLogin() {
         updateUIForLoginStatus();
-        fetchCourses(); // Ensures courses are fetched after login
+        fetchCourses(); 
     }
 
     function showSection(section) {
         const sections = document.querySelectorAll('main > section');
-        sections.forEach((s) => (s.style.display = 'none'));
-        if (section) {
-            section.style.display = 'block';
-        }
+        sections.forEach((s) => s.style.display = 'none');
+        if (section) section.style.display = 'block';
     }
 
-    // Fetch and display discussion comments
     function fetchDiscussion() {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -80,19 +77,28 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: { 'Authorization': token },
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to fetch discussion');
-            }
+            if (!response.ok) throw new Error('Failed to fetch discussion');
             return response.json();
         })
         .then(discussion => {
             const discussionList = document.getElementById('discussion-list');
             if (discussionList) {
                 discussionList.innerHTML = '';
-                discussion.forEach((comment) => {
+                discussion.forEach(comment => {
                     const commentItem = document.createElement('li');
-                    commentItem.textContent = `${comment.name}: ${comment.comment}`;
+                    const timestamp = new Date(comment.created_at).toLocaleString();
+                    commentItem.innerHTML = `
+                        ${comment.name}: ${comment.comment} (Posted on: ${timestamp})
+                        <button data-id="${comment.id}" class="delete-comment">Delete</button>
+                    `;
                     discussionList.appendChild(commentItem);
+                });
+
+                document.querySelectorAll('.delete-comment').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const commentId = e.target.getAttribute('data-id');
+                        deleteComment(commentId);
+                    });
                 });
             } else {
                 console.error('discussion-list element not found');
@@ -104,7 +110,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Navigation event listeners
+    function deleteComment(commentId) {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.log('User not logged in. Cannot delete comment.');
+            return;
+        }
+
+        fetch(`/api/discussion/${commentId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': token },
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Comment deleted successfully');
+                fetchDiscussion();
+            } else {
+                response.json().then(data => {
+                    alert(data.message || 'Failed to delete comment');
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting comment:', error);
+            alert('Error deleting comment. Please try again later.');
+        });
+    }
+
     loginLink?.addEventListener('click', (e) => {
         e.preventDefault();
         showSection(loginSection);
@@ -140,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('You have been logged out.');
     });
 
-    // Login form submission
     loginForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('login-email').value;
@@ -156,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
                 localStorage.setItem('token', `Bearer ${data.token}`);
                 alert('Login successful!');
-                onSuccessfulLogin(); // Call this function after login
+                onSuccessfulLogin();
             } else {
                 const errorData = await response.json();
                 document.getElementById('login-error').textContent = errorData.message;
@@ -167,7 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Registration form submission
     registerForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('register-name').value;
@@ -193,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Discussion form submission
     discussionForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const comment = document.getElementById('discussion-comment').value;
@@ -226,7 +255,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initial UI update
     updateUIForLoginStatus();
 });
 
